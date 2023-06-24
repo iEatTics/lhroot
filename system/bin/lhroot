@@ -29,6 +29,7 @@ kali="/data/kali"
 fedora="/data/fedora"
 manjaro="/data/manjaro"
 void="/data/void"
+ubuntu1404="?data/ubuntu1404"
 
 tmp="/data/local/tmp"
 
@@ -118,7 +119,7 @@ debian () {
                 *)
                     abort "unknown arch" ;;
             esac
-            wget "https://raw.githubusercontent.com/FerryAr/lhroot-repo/main/Rootfs/Debian/${archurl}/debian-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
+            wget "https://raw.githubusercontent.com/iEatTics/lhroot-repo/main/Rootfs/Debian/${archurl}/debian-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
         fi
         mkdir -p "$folder"
         cd "$folder"
@@ -151,7 +152,7 @@ ubuntu () {
                 *)
                     abort "unknown arch"
             esac
-            wget "https://raw.githubusercontent.com/FerryAr/lhroot-repo/main/Rootfs/Ubuntu/${archurl}/ubuntu-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
+            wget "https://raw.githubusercontent.com/iEatTics/lhroot-repo/main/Rootfs/Ubuntu/${archurl}/ubuntu-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
         fi
         mkdir -p "$folder"
         cd "$folder"
@@ -184,7 +185,7 @@ void () {
                 *)
                     abort "unknown arch" ;;
             esac
-            wget "https://raw.githubusercontent.com/FerryAr/lhroot-repo/main/Rootfs/Void/${archurl}/void-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
+            wget "https://raw.githubusercontent.com/iEatTics/lhroot-repo/main/Rootfs/Void/${archurl}/void-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
         fi
         mkdir -p "$folder"
         cd "$folder"
@@ -299,7 +300,7 @@ kali () {
                 *)
                     abort "unknown arch" ;;
             esac
-            wget "https://raw.githubusercontent.com/FerryAr/lhroot-repo/main/Rootfs/Kali/${archurl}/kali-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
+            wget "https://raw.githubusercontent.com/iEatTics/lhroot-repo/main/Rootfs/Kali/${archurl}/kali-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
         fi
         mkdir -p "$folder"
         cd "$folder"
@@ -329,7 +330,7 @@ fedora () {
                 *)
                     abort "unknown/unsupported arch" ;;
             esac
-            wget "https://raw.githubusercontent.com/FerryAr/lhroot-repo/main/Rootfs/Fedora/${archurl}/fedora-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
+            wget "https://raw.githubusercontent.com/iEatTics/lhroot-repo/main/Rootfs/Fedora/${archurl}/fedora-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
         fi
         mkdir -p "$folder"
         cd "$folder"
@@ -341,6 +342,32 @@ fedora () {
     rm $tarball
     echo "You can now launch Fedora with bootlinux script"
 }
+
+ubuntu1404 () {
+    folder=$ubuntu1404
+    checkdir "$folder"
+    tarball="$tmp/ubuntu1404.tar.xz"
+    archurl=
+    if [ "$first" != 1 ]; then
+        if [ ! -f $tarball ]; then
+            echo "Downloading Rootfs, please wait..."
+            case $ARCH in
+                arm64)
+                    archurl="arm64" ;;
+                *)
+                    abort "unknown arch"
+            esac
+            wget "https://raw.githubusercontent.com/iEatTics/lhroot-repo/main/Rootfs/Ubuntu/${archurl}/ubuntu-rootfs-${archurl}.tar.xz" -qO $tarball & e_spinner
+        fi
+        mkdir -p "$folder"
+        cd "$folder"
+        echo "Decompressing Rootfs..."
+        tar xfJ ${tarball} 2> /dev/null||:
+        cd $HOME
+    fi
+    echo "Removing rootfs tarball for some space"
+    rm $tarball
+    echo "You can now launch Ubuntu 14.04 with the bootlinux script"
 
 install_chroot () {
     clear
@@ -358,6 +385,7 @@ install_chroot () {
         echo "7. Manjaro"
         echo "8. Ubuntu"
         echo "9. Void Linux"
+        echo "10. Ubuntu 14.04"
         read -r choice?'--> '
         echo " "
         case $choice in
@@ -371,6 +399,7 @@ install_chroot () {
             7) manjaro ;;
             8) ubuntu ;;
             9) void ;;
+            10) ubuntu1404 ;;
         esac
     done
 }
@@ -392,6 +421,7 @@ remove_chroot () {
         echo "7. Manjaro"
         echo "8. Ubuntu"
         echo "9. Void Linux"
+        echo "10. Ubuntu 14.04"
         read -r choice?'--> '
         echo " "
         case $choice in
@@ -432,6 +462,11 @@ remove_chroot () {
                 installed=true
                 lmount=$void
                 ;;
+            10)
+                installed=true
+                lmount=$ubuntu1404
+                ;;
+
         esac
         if [ $installed ] && [ -d $lmount ]; then
             killlinux
